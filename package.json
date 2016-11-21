@@ -1,0 +1,11 @@
+{
+  "name": "ai_mp4",
+  "version": "1.0.0",
+  "description": "pong",
+  "main": "app.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "charlie anderson",
+  "license": "ISC"
+}
