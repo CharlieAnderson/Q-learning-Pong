@@ -1,4 +1,4 @@
-
+/// <reference path="state.ts"/>
 
 class Discrete_State {
     location: [number, number]; // 12x12 grid of ball states
