@@ -1,3 +1,4 @@
+/// <reference path="discrete_state.ts"/>
 /*
 
 ball_x and ball_y are real numbers on the interval [0,1].
@@ -18,12 +19,15 @@ var State = (function () {
         this.velocity_X = velocity_X;
         this.velocity_Y = velocity_Y;
         this.paddle_Y = paddle_Y;
+        this.reward = 0;
         this.ball_x = ball_X;
         this.ball_y = ball_Y;
         this.velocity_x = velocity_X;
         this.velocity_y = velocity_Y;
         this.paddle_y = paddle_Y;
         this.state_t = [ball_X, ball_Y, velocity_X, velocity_Y, paddle_Y];
+        this.reward = 0;
+        this.discrete = new Discrete_State(this);
     }
     State.prototype.moveUp = function () {
         this.paddle_y -= 0.04;
@@ -35,30 +39,55 @@ var State = (function () {
         if (this.paddle_y > 0.8)
             this.paddle_y = 0.8;
     };
+    State.prototype.movePaddle = function (j) {
+        if (j == 0) {
+            this.moveUp();
+        }
+        else if (j == 1) {
+            this.moveDown();
+        }
+    };
     State.prototype.moveBall = function (x, y) {
         this.ball_x += x;
         this.ball_y += y;
+        //   console.log("top paddle: "+this.paddle_y+", bottom: "+(this.paddle_y+0.2));
         // ball gets past the paddle
-        if (this.ball_x > 1)
-            console.log("GAME OVER");
-        else if (this.ball_y < 0) {
+        // ball bounces off the top wall
+        if (this.ball_y < 0) {
+            //     console.log("top wall hit")
             this.ball_y = (-1 * this.ball_y);
             this.velocity_y = (-1 * this.velocity_y);
         }
-        else if (this.ball_y > 1) {
+        // ball bounces off the bottom wall
+        if (this.ball_y > 1) {
+            //    console.log("bottom wall hit")
             this.ball_y = (2 - this.ball_y);
             this.velocity_y = (-1 * this.velocity_y);
         }
-        else if (this.ball_x < 0) {
+        // ball bounces off the left wall
+        if (this.ball_x < 0) {
+            //   console.log("left wall hit")
             this.ball_x = (-1 * this.ball_x);
             this.velocity_x = (-1 * this.velocity_x);
         }
-        else if ((this.ball_x == 1) &&
+        // ball bounces off the paddle
+        if ((this.ball_x >= 1.0) &&
             (this.ball_y > this.paddle_y) &&
             (this.ball_y < this.paddle_y + 0.2)) {
-            this.ball_x = (2 * (1 - this.ball_x));
-            this.velocity_x = (-1 * this.velocity_x + (Math.random() * (0.015 - (-0.015) + 1) - 0.015));
+            //   console.log("paddle hit")
+            this.ball_x = (2 - this.ball_x);
+            var random_x = (Math.random() * (0.015 - (-0.015) - 0.015));
+            //  console.log("random: "+random_x);
+            this.velocity_x = (-1 * this.velocity_x + random_x);
             this.velocity_y = (this.velocity_y + (Math.random() * (0.03 - (-0.03) + 1) - 0.03));
+            this.reward = 1;
+        }
+        else if (this.ball_x > 1) {
+            //  console.log("GAME OVER");
+            this.reward = -1;
+        }
+        else {
+            this.reward = 0;
         }
         // make sure velocity x is reasonable
         if (Math.abs(this.velocity_x) < 0.03) {
@@ -68,6 +97,9 @@ var State = (function () {
             else
                 this.velocity_x = 0.03;
         }
+        //    console.log("ball_x: "+this.ball_x + ", " + "ball_y: "+this.ball_y);
+        //   console.log("velocity_x: "+this.velocity_x + ", " + "velocity_y: "+this.velocity_y );
+        return this.reward;
     };
     State.prototype.changeVelocity = function (x, y) {
         this.velocity_x += x;
