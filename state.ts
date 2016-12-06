@@ -24,6 +24,7 @@ class State {
                       //x coordinate is always the line x=1, paddle_height is 0.2
     state_t: [number, number, number, number, number]; // tuple for all the previous values
     reward:number = 0;
+    bounces: number = 0;
     discrete: Discrete_State;
     
     constructor(public ball_X, public ball_Y, public velocity_X, public velocity_Y, public paddle_Y) {
@@ -63,16 +64,16 @@ class State {
         // ball gets past the paddle
 
         // ball bounces off the top wall
-        if(this.ball_y < 0) {
+        if(this.ball_y <= 0) {
        //     console.log("top wall hit")
-            this.ball_y = (-1*this.ball_y);
-            this.velocity_y = (-1*this.velocity_y);
+            this.ball_y = ((-1)*this.ball_y);
+            this.velocity_y = ((-1)*this.velocity_y);
         }
         // ball bounces off the bottom wall
-        if(this.ball_y > 1) {
+        if(this.ball_y >= 1.0) {
         //    console.log("bottom wall hit")
             this.ball_y = (2-this.ball_y);
-            this.velocity_y = (-1*this.velocity_y);
+            this.velocity_y = ((-1)*this.velocity_y);
         }
         // ball bounces off the left wall
         if(this.ball_x < 0) {
@@ -88,13 +89,17 @@ class State {
         (this.ball_y < this.paddle_y+0.2)) {
          //   console.log("paddle hit")
             this.ball_x = (2-this.ball_x);
-            var random_x: number = (Math.random()*(0.015 - (-0.015) - 0.015));
+            var random_x: number = (Math.random()*(0.005 - (-0.005) - 0.005));
           //  console.log("random: "+random_x);
             this.velocity_x = (-1*this.velocity_x + random_x);
-            this.velocity_y = (this.velocity_y + (Math.random()*(0.03 - (-0.03) + 1) - 0.03));
+            var random_y: number = (Math.random()*(0.03 - (-0.03) - 0.03));
+            this.velocity_y = this.velocity_y + random_y;
+            //this.velocity_y = (this.velocity_y + (Math.random()*(0.03 - (-0.03) + 1) - 0.03));
             this.reward = 1;
+            this.bounces++;
+            //console.log("hit "+this.bounces);
         }
-        else if(this.ball_x > 1) {
+        else if(this.ball_x >= 1.0) {
           //  console.log("GAME OVER");
             this.reward = -1;
         }
@@ -109,6 +114,8 @@ class State {
             else
                 this.velocity_x = 0.03;
         }
+        
+
     //    console.log("ball_x: "+this.ball_x + ", " + "ball_y: "+this.ball_y);
      //   console.log("velocity_x: "+this.velocity_x + ", " + "velocity_y: "+this.velocity_y );
         return this.reward;

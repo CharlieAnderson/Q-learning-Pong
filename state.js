@@ -20,6 +20,7 @@ var State = (function () {
         this.velocity_Y = velocity_Y;
         this.paddle_Y = paddle_Y;
         this.reward = 0;
+        this.bounces = 0;
         this.ball_x = ball_X;
         this.ball_y = ball_Y;
         this.velocity_x = velocity_X;
@@ -53,16 +54,16 @@ var State = (function () {
         //   console.log("top paddle: "+this.paddle_y+", bottom: "+(this.paddle_y+0.2));
         // ball gets past the paddle
         // ball bounces off the top wall
-        if (this.ball_y < 0) {
+        if (this.ball_y <= 0) {
             //     console.log("top wall hit")
-            this.ball_y = (-1 * this.ball_y);
-            this.velocity_y = (-1 * this.velocity_y);
+            this.ball_y = ((-1) * this.ball_y);
+            this.velocity_y = ((-1) * this.velocity_y);
         }
         // ball bounces off the bottom wall
-        if (this.ball_y > 1) {
+        if (this.ball_y >= 1.0) {
             //    console.log("bottom wall hit")
             this.ball_y = (2 - this.ball_y);
-            this.velocity_y = (-1 * this.velocity_y);
+            this.velocity_y = ((-1) * this.velocity_y);
         }
         // ball bounces off the left wall
         if (this.ball_x < 0) {
@@ -76,13 +77,16 @@ var State = (function () {
             (this.ball_y < this.paddle_y + 0.2)) {
             //   console.log("paddle hit")
             this.ball_x = (2 - this.ball_x);
-            var random_x = (Math.random() * (0.015 - (-0.015) - 0.015));
+            var random_x = (Math.random() * (0.005 - (-0.005) - 0.005));
             //  console.log("random: "+random_x);
             this.velocity_x = (-1 * this.velocity_x + random_x);
-            this.velocity_y = (this.velocity_y + (Math.random() * (0.03 - (-0.03) + 1) - 0.03));
+            var random_y = (Math.random() * (0.03 - (-0.03) - 0.03));
+            this.velocity_y = this.velocity_y + random_y;
+            //this.velocity_y = (this.velocity_y + (Math.random()*(0.03 - (-0.03) + 1) - 0.03));
             this.reward = 1;
+            this.bounces++;
         }
-        else if (this.ball_x > 1) {
+        else if (this.ball_x >= 1.0) {
             //  console.log("GAME OVER");
             this.reward = -1;
         }

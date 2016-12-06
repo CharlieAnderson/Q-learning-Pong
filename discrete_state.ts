@@ -8,8 +8,7 @@ class Discrete_State {
     ball_x: number;
     ball_y: number;
     paddle_y: number; // floor(12 * paddle_y / (1 - paddle_height); 12 possible values
-    grid_square_w: number = (1.0/12.0);
-    grid_square_h: number = (1.0/12.0);
+    state: State;
     reward: number;
     state_t: [number, number, number, number, number]; 
     constructor(state:State) {
@@ -17,17 +16,24 @@ class Discrete_State {
     }
 
     discretize(state:State) {
+        this.state = state;
         this.ball_x = Math.floor(12.0*state.ball_x);
+        if(this.ball_x == 12) {
+            this.ball_x = 11;
+        }
         this.ball_y = Math.floor(12.0*state.ball_y);
+        if(this.ball_y == 12) {
+            this.ball_y = 11;
+        }        
         this.location = [this.ball_x, this.ball_y];
         if(state.velocity_x < 0) 
             this.velocity_x = -1;
         else
             this.velocity_x = 1;
 
-        if(state.velocity_y < -0.015)
+        if(state.velocity_y <= -0.015)
             this.velocity_y = -1;
-        else if (state.velocity_y > 0.015)
+        else if (state.velocity_y >= 0.015)
             this.velocity_y = 1;
         else
             this.velocity_y = 0;
